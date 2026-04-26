@@ -1,0 +1,5 @@
+*.o
+*.ptx
+gpu_burn
+build/
+.DS_Store
