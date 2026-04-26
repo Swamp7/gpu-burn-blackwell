@@ -4,6 +4,19 @@ A small Docker image that builds [wilicc/gpu-burn](https://github.com/wilicc/gpu
 
 The popular pre-built `gpu-burn` images on Docker Hub are CUDA 8 / CUDA 11.1 vintage. They run on a 5090 via PTX JIT, but their bundled cuBLAS has no Blackwell-tuned kernels, so the FLOP/s number you see is well below what the card can actually deliver. A fresh build against CUDA 13 fixes that.
 
+## Quick start (prebuilt image)
+
+A prebuilt image targeting `sm_120` (5090 / RTX PRO 6000 Blackwell Workstation) is published to Docker Hub:
+
+```bash
+docker pull swamp7/gpu-burn:cuda13
+docker run --rm --gpus all swamp7/gpu-burn:cuda13 120
+# Or with the legacy nvidia runtime:
+docker run --rm --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all swamp7/gpu-burn:cuda13 120
+```
+
+For other architectures, build locally with the appropriate `COMPUTE` value (see below).
+
 ## Build
 
 ```bash
