@@ -1,12 +1,20 @@
 # syntax=docker/dockerfile:1
 #
-# gpu-burn built against CUDA 13 for NVIDIA Blackwell GPUs.
+# gpu-burn built against CUDA 13 for modern NVIDIA GPUs.
 #
-# Default COMPUTE=120 targets sm_120 (RTX 5090, RTX PRO 6000 Blackwell Workstation).
-# Override at build time for other architectures:
-#   docker build --build-arg COMPUTE=100 -t gpu-burn:b100 .   # B100 / B200
-#   docker build --build-arg COMPUTE=90  -t gpu-burn:hopper . # H100 / H200
-#   docker build --build-arg COMPUTE=89  -t gpu-burn:ada    . # 4090 / L40
+# Default COMPUTE=70 (Volta baseline) generates compute_70 PTX, which the
+# CUDA driver JIT-compiles to any target sm_70 or higher at runtime. The
+# bulk of work is done in cuBLAS (which contains arch-tuned kernels for
+# every supported architecture in its own fatbin), so the small comparison
+# kernel being JIT'd adds negligible overhead. Net effect: one image runs
+# correctly on V100 / Ampere / Ada / Hopper / Blackwell.
+#
+# Override at build time if you want native SASS for a specific architecture:
+#   docker build --build-arg COMPUTE=120 -t gpu-burn:blackwell . # 5090 / RTX PRO 6000 WS
+#   docker build --build-arg COMPUTE=100 -t gpu-burn:b100      . # B100 / B200
+#   docker build --build-arg COMPUTE=90  -t gpu-burn:hopper    . # H100 / H200
+#   docker build --build-arg COMPUTE=89  -t gpu-burn:ada       . # 4090 / L40
+#   docker build --build-arg COMPUTE=86  -t gpu-burn:ampere    . # 3090 / A40
 #
 # Run (Docker 19.03+ with NVIDIA Container Toolkit):
 #   docker run --rm --gpus all gpu-burn:latest 120
@@ -27,7 +35,7 @@ RUN git clone --depth=1 --branch "${GPU_BURN_REF}" https://github.com/wilicc/gpu
 
 WORKDIR /opt/gpu-burn
 
-ARG COMPUTE=120
+ARG COMPUTE=70
 RUN make COMPUTE=${COMPUTE}
 
 
