@@ -2,12 +2,13 @@
 #
 # gpu-burn built against CUDA 13 for modern NVIDIA GPUs.
 #
-# Default COMPUTE=70 (Volta baseline) generates compute_70 PTX, which the
-# CUDA driver JIT-compiles to any target sm_70 or higher at runtime. The
+# Default COMPUTE=75 (Turing baseline) generates compute_75 PTX, which the
+# CUDA driver JIT-compiles to any target sm_75 or higher at runtime. The
 # bulk of work is done in cuBLAS (which contains arch-tuned kernels for
 # every supported architecture in its own fatbin), so the small comparison
 # kernel being JIT'd adds negligible overhead. Net effect: one image runs
-# correctly on V100 / Ampere / Ada / Hopper / Blackwell.
+# correctly on Turing / Ampere / Ada / Hopper / Blackwell. CUDA 13 does
+# not support compute_70 (Volta) — V100 users need an older CUDA base.
 #
 # Override at build time if you want native SASS for a specific architecture:
 #   docker build --build-arg COMPUTE=120 -t gpu-burn:blackwell . # 5090 / RTX PRO 6000 WS
@@ -35,7 +36,7 @@ RUN git clone --depth=1 --branch "${GPU_BURN_REF}" https://github.com/wilicc/gpu
 
 WORKDIR /opt/gpu-burn
 
-ARG COMPUTE=70
+ARG COMPUTE=75
 RUN make COMPUTE=${COMPUTE}
 
 

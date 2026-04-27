@@ -1,12 +1,12 @@
 # gpu-burn-blackwell
 
-A small Docker image that builds [wilicc/gpu-burn](https://github.com/wilicc/gpu-burn) against CUDA 13. The default build runs on **any GPU from V100 onward** (Volta, Ampere, Ada, Hopper, Blackwell) because the comparison kernel is compiled to `compute_70` PTX and the driver JITs it to whatever silicon you point it at. The heavy lifting happens inside cuBLAS, which contains arch-tuned kernels for every supported architecture, so a 5090 still gets Blackwell-tuned cuBLAS kernels through the same image.
+A small Docker image that builds [wilicc/gpu-burn](https://github.com/wilicc/gpu-burn) against CUDA 13. The default build runs on **any GPU from Turing onward** (T4, RTX 20xx, Ampere, Ada, Hopper, Blackwell) because the comparison kernel is compiled to `compute_75` PTX and the driver JITs it to whatever silicon you point it at. The heavy lifting happens inside cuBLAS, which contains arch-tuned kernels for every supported architecture, so a 5090 still gets Blackwell-tuned cuBLAS kernels through the same image. CUDA 13 dropped support for Volta (V100, sm_70) — V100 users need to base on an older CUDA image.
 
 The popular pre-built `gpu-burn` images on Docker Hub are CUDA 8 / CUDA 11.1 vintage. They run on a 5090 via PTX JIT, but their bundled cuBLAS has no Blackwell-tuned kernels, so the FLOP/s number you see is well below what the card can actually deliver. A fresh build against CUDA 13 fixes that.
 
 ## Quick start (prebuilt image)
 
-The prebuilt image runs on Volta and newer (V100 / A100 / 30xx / 40xx / H100 / B100 / 5090 / RTX PRO 6000 WS) without rebuilding:
+The prebuilt image runs on Turing and newer (T4 / RTX 20xx / A100 / 30xx / 40xx / H100 / B100 / 5090 / RTX PRO 6000 WS) without rebuilding:
 
 ```bash
 docker pull swamp7/gpu-burn:cuda13
@@ -15,12 +15,12 @@ docker run --rm --gpus all swamp7/gpu-burn:cuda13 120
 docker run --rm --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all swamp7/gpu-burn:cuda13 120
 ```
 
-If you want native SASS for a specific architecture instead of JIT'ing from compute_70 PTX, build locally with the appropriate `COMPUTE` value (see below).
+If you want native SASS for a specific architecture instead of JIT'ing from compute_75 PTX, build locally with the appropriate `COMPUTE` value (see below).
 
 ## Build
 
 ```bash
-# Default: compute_70 PTX, runs on V100+ via JIT
+# Default: compute_75 PTX, runs on Turing+ via JIT
 docker build -t gpu-burn:cuda13 .
 
 # Native sm_120 (5090 / RTX PRO 6000 Blackwell Workstation)
